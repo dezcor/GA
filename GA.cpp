@@ -1,4 +1,5 @@
 #include "GA.h"
+#include <algorithm>
 
 namespace GA
 {
@@ -7,6 +8,10 @@ namespace GA
 	*
 	*
 	***********************************/
+	bool compar(Individuo& i,Individuo& j)
+	{ 
+		return i.GetObjetivo()<j.GetObjetivo();
+	}
 
 	Individuo::Individuo()
 	{
@@ -66,7 +71,7 @@ namespace GA
 		Cromosoma.resize(sum);
 	}
 
-	void Individuo::setValor(const unsigned int Index, const int Valor)
+	void Individuo::setValor(const unsigned int Index, const float Valor)
 	{
 		this->valor[Index] = Valor;
 	}
@@ -103,6 +108,7 @@ namespace GA
 		Pc = 0;
 		MaxError = 50;
 		idMejor = 0;
+		isNumberReal = false;
 		srand(time(NULL));
 	}
 
@@ -281,7 +287,7 @@ namespace GA
 		int generacion = 1;
 		Inicializa();
 		Evaluacion();
-		MostrarPoblacion();
+		//MostrarPoblacion();
 		while (generacion < MaxGeneraciones && this->Error> Error)
 		{
 			Ruleta();
@@ -290,10 +296,11 @@ namespace GA
 			ConservarMejor();
 			ActualizarPoblacion();
 			Evaluacion();
-			printf("Generacion %d\n\n", generacion);
+			//printf("Generacion %d\n\n", generacion);
 			//MostrarPoblacion();
 			generacion++;
 		}
+		printf("Generacion %d\n\n", generacion);
 
 	}
 
@@ -333,7 +340,6 @@ namespace GA
 			{
 				individuos[i].SetCromosoma(NewIndividuos[i].GetCromosoma());
 			}
-
 		}
 	}
 
@@ -349,7 +355,12 @@ namespace GA
 				Numero = Numero | ((individuo[j] == 1) ? 1 << k : 0);
 			}
 			Init = next;
-			individuo.setValor(i, Numero);
+			if(isNumberReal)
+			{
+				individuo.setValor(i, (float)Numero/(1 << NumeroBitGet[i])*(Limites[1]-Limites[0])+Limites[0]);
+			}
+			else
+			individuo.setValor(i, (float)Numero);
 		}
 	}
 

@@ -4,6 +4,12 @@
 #include "GA.h"
 #include <opencv2/opencv.hpp>
 #include <string>
+#include <iostream>
+
+bool compar(GA::Individuo& i,GA::Individuo& j)
+{ 
+	return i.GetObjetivo()<j.GetObjetivo();
+}
 struct Points
 {
     float Xi;
@@ -23,13 +29,14 @@ class DetecteCircle : public GA::Poblacion
 {
   public:
     DetecteCircle();
-    DetecteCircle(const char *path);
+    DetecteCircle(const char *path,bool numeroReal);
     ~DetecteCircle();
     //Funcion Virtual
     void FuncionObjetivo(GA::Individuo &individuo);
     //No virtuales
-    void PutResul(const char *path);
+    void PutResul(const string &path);
     void SetImage(const char *path);
+    void PutImageallCircle(const string & path);
 
   private:
     void drawcircle(int x0, int y0, int radius, int gray);
@@ -43,26 +50,38 @@ class DetecteCircle : public GA::Poblacion
 
 int main(int argc, char *argv[])
 {
-    string in, out;
-    if (argc >= 2)
+    string in, out,is;
+    bool isReal=true;
+    if (argc >= 3)
     {
         in = argv[1];
         printf("%s\n", in.c_str());
         int x = in.find(".");
         out = in.substr(0, x);
-        out += "Result.bmp";
+        //out += "Result.bmp";
+        is = argv[2];
+        if(is == "true")
+            isReal = true;
+        else
+        {
+            isReal = false;
+            is = "false";
+        }
+        std::cout << is << std::endl;
     }
     else
         return 1;
-    DetecteCircle poblacion(in.c_str());
-    poblacion.resizePoblacion(70);
+    DetecteCircle poblacion(in.c_str(),isReal);
+    poblacion.resizePoblacion(50u);
     poblacion.setProbabilidadCruza(0.5);
     poblacion.setProbabilidadMuta(0.1);
     poblacion.Run(1000, 40);
     //poblacion.MostrarPoblacion();
     printf("Mejor Individuo: %d\n", poblacion.GetidMejor());
     poblacion.MostrarIndividuo(poblacion.GetidMejor());
-    poblacion.PutResul(out.c_str());
+    poblacion.PutResul(out + is + "Result.bmp");
+    poblacion.PutImageallCircle(out + is + "allCircle.png");
+    cv::waitKey(0);
     return 0;
 }
 
@@ -72,11 +91,13 @@ DetecteCircle::DetecteCircle() : Poblacion()
     MaxError = 100;
 }
 
-DetecteCircle::DetecteCircle(const char *path) : Poblacion()
+DetecteCircle::DetecteCircle(const char *path,bool numeroReal) : Poblacion()
 {
     MaxError = 100;
     cv::Mat image,gris,blur,borde;
-	gris = cv::imread(path, cv::IMREAD_GRAYSCALE);
+	gris = cv::imread(path, cv::IMREAD_REDUCED_COLOR_4);
+    cv::imwrite("fabi.bmp",gris);
+    gris = cv::imread(path, cv::IMREAD_GRAYSCALE);
     bool no=false;
     for (int i = 0; i < gris.rows; i++)
 	{
@@ -118,7 +139,21 @@ DetecteCircle::DetecteCircle(const char *path) : Poblacion()
             }
         }
     }
-    this->NumeroBitGet.resize(3, (unsigned int)ceil(log2(points.size())));
+    isNumberReal = numeroReal;
+    if(isNumberReal)
+    {
+        this->NumeroBitGet.resize(3, 16);
+        Limites.resize(2);
+        Limites[0] = 0;
+        Limites[1] = points.size()-1;
+    }
+    else
+    {
+        this->NumeroBitGet.resize(3, (unsigned int)ceil(log2(points.size())));
+        Limites.resize(2);
+        Limites[0] = 0;
+        Limites[1] = points.size()-1;
+    }
     NumeroDeGenes = 3;
     SizeCromosoma = 3 * NumeroBitGet[0];
 }
@@ -294,7 +329,7 @@ void DetecteCircle::drawcircle(int x0, int y0, int radius, int gray)
     }
 }
 
-void DetecteCircle::PutResul(const char *path)
+void DetecteCircle::PutResul(const string &path)
 {
     if (img.empty())
         return;
@@ -313,5 +348,31 @@ void DetecteCircle::PutResul(const char *path)
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE); // Create a window for display.
     cv::imshow("Display window", imagen);                      // Show our image inside it.
     cv::imwrite(path, imagen);
-    cv::waitKey(0);
+}
+
+
+void DetecteCircle::PutImageallCircle(const string & path)
+{
+     if (img.empty())
+        return;
+        float x0,y0,r;
+    printf("\n");
+    cv::Mat imagen;
+    cv::cvtColor(img,imagen,CV_GRAY2RGB);
+    for(size_t i1 = 0; i1 < SizePoblacion; i1++)
+    {
+        int i = individuos[i1].GetValor(0);
+        int j = individuos[i1].GetValor(1);
+        int k = individuos[i1].GetValor(2);
+        x0 = getX0(points[i].Xi, points[i].Yi, points[j].Xi, points[j].Yi, points[k].Xi, points[k].Yi);
+        y0 = getY0(points[i].Xi, points[i].Yi, points[j].Xi, points[j].Yi, points[k].Xi, points[k].Yi);
+        r = getR(points[i].Xi, points[i].Yi, x0, y0);
+        printf("\nX = %f Y = %f Radio = %f Objetivo = %f\n", x0, y0, r,individuos[i1].GetObjetivo());
+        if(r<=0)continue;
+        if( isnan(x0) || isnan(y0) || isnan(r)) continue;
+        cv::circle(imagen, cv::Point(x0, y0), r, cv::Scalar(rand()/(float)RAND_MAX*255,(float)rand()/RAND_MAX*255,(float)rand()/RAND_MAX*255));
+    }
+    cv::namedWindow("Display all", cv::WINDOW_AUTOSIZE); // Create a window for display.
+    cv::imshow("Display all", imagen);                      // Show our image inside it.
+    cv::imwrite(path, imagen);
 }

@@ -33,7 +33,7 @@ namespace GA
 		unsigned int &operator[](const int Index);
 		void SetNumeroGenes(const unsigned int size);
 		void SetNumeroBitGen(const vector<unsigned int> &NumBitGen);
-		void setValor(const unsigned int Index, const int valor);
+		void setValor(const unsigned int Index, const float valor);
 		void SetObjetivo(const float obj);
 		void SetFitness(float fitness);
 		void SetProbSel(float pbSel);
@@ -59,6 +59,8 @@ namespace GA
 		float Pm;
 		int idMejor;
 		int MaxError;
+		bool isNumberReal;
+		std::vector<float> Limites;
 	public:
 		float Error;
 		//____________Get____________
@@ -68,12 +70,25 @@ namespace GA
 		unsigned int GetsizePoblacion();
 		int GetidMejor();
 		Individuo &operator[](const unsigned int Index);
+		bool isNumberR()
+		{
+			return isNumberReal;
+		}
 		//____________Set____________
 		void SetNumGenes(const unsigned int NG);
 		void SetNumBitGen(const vector<unsigned int> &NumeroBitGet);
 		void resizePoblacion(const unsigned int NumeroDeGenes);
 		void setProbabilidadCruza(float pc);
 		void setProbabilidadMuta(float pm);
+		void SetisNumberReal(bool is)
+		{
+			isNumberReal= is;
+		}
+		void SetLimites(std::vector<float> const & Lim)
+		{
+			Limites = Lim;
+			isNumberReal = true;
+		}
 		Poblacion();
 		virtual ~Poblacion() {}
 
