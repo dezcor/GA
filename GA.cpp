@@ -96,6 +96,7 @@ namespace GA
 		this->Cromosoma = Cromosoma;
 	}
 
+
 	/******************************************
 	* Class Poblacion
 	******************************************/

@@ -343,7 +343,7 @@ void DetecteCircle::PutResul(const string &path)
     printf("X = %f\nY = %f\nRadio = %f\n", x0, y0, r);
     cv::Scalar color(255,0,0);
     cv::Mat imagen;
-    cv::cvtColor(img,imagen,CV_GRAY2RGB);
+    cv::cvtColor(img,imagen,cv::COLOR_GRAY2RGB);
     cv::circle(imagen, cv::Point(x0, y0), r, color);
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE); // Create a window for display.
     cv::imshow("Display window", imagen);                      // Show our image inside it.
@@ -358,7 +358,7 @@ void DetecteCircle::PutImageallCircle(const string & path)
         float x0,y0,r;
     printf("\n");
     cv::Mat imagen;
-    cv::cvtColor(img,imagen,CV_GRAY2RGB);
+    cv::cvtColor(img,imagen,cv::COLOR_GRAY2RGB);
     for(size_t i1 = 0; i1 < SizePoblacion; i1++)
     {
         int i = individuos[i1].GetValor(0);
