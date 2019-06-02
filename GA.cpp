@@ -235,14 +235,14 @@ namespace GA
 	void Poblacion::Cruza()
 	{
 		/*******************Insertar Codigo*************/
-		int RangoCruza; //= (int)((double)rand() / RAND_MAX * (SizeCromosoma - 2) + 1);
+		int RangoCruza = (int)((double)rand() / RAND_MAX * (SizeCromosoma - 2) + 1);
 		float random = 0;
 		for (int i = 0; i < SizePoblacion - 1; i += 2)
 		{
 			random = (double)rand() / RAND_MAX;
 			if (random < Pc)
 			{
-				RangoCruza = (int)((double)rand() / RAND_MAX * (SizeCromosoma - 2) + 1);
+				//RangoCruza = (int)((double)rand() / RAND_MAX * (SizeCromosoma - 2) + 1);
 				for (int j = 0; j < RangoCruza; j++)
 				{
 					NewIndividuos[i][j] = individuos[idSelect[i]][j];
@@ -316,6 +316,7 @@ namespace GA
 				if (random < Pm)
 				{
 					NewIndividuos[i][j] = !NewIndividuos[i][j];
+					break;
 				}
 			}
 		}
